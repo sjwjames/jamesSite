@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "About it"
+date:   2016-02-13 20:56:46 +0800
+categories: initiation
+---
+<section>
+  <h1>
+    {{page.title}}
+  </h1>
+  <p>
+    首先感谢大神阮一峰，基本是按照他的步骤来搭建和理解的
+    (<a href="http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html">此处应有链接</a>)。<br>
+    简要记录一下，GithubPages原来是用来作为项目的介绍页的一项功能，由github提供模板通过在站内生成网页或者是用户自己编写网页然后上传来实现，
+    用户上传的网页会经过Jekyll程序的处理。Jekyll是一个静态网页生成器(<a href="http://jekyllrb.com/">Jekyll官网</a>)，它根据网页源码生成静态文件
+    。这样我们就可以自己编写静态网页，经过编译就能生成博客了(*★,°*:.☆\(￣▽￣)/$:*.°★*);<br>
+    搭建过程比较简单，首先在github上新建一个repo(此处有两种方法，根据GithubPages和我几位基友的博客<a href="hanyilu93.com">卓一各</a>|<a href="hyman1994.com">沈鸿斌</a>|<a href="www.shenjianan.net/">猫哥</a>
+    你可以把这个repo的名字命名为 yourgithubname.github.io 或者 像我一样随便取名，然后再gh-pages分支下面工作。
+    );<br>
+    首先如果是windows党的话需要先安装ruby和ruby的包管理器gem，然后安装Jekyll。利用cmd来生成项目，jekyll new your-site;如果你是和我一样，repo的名字随便取的话，
+    需要检出一个新的分支git checkout --orphan gh-pages;在这个分支下工作的代码会生成GithubPages;
+    然后就可以试试手了，发个hello world什么的，文章统一都在_posts这个文件夹下面，看它自动生成的页面就可以知道，名字是有一定格式的。
+    而且文章开头需要符合Yaml语法。<br>
+    这样建站的缺点是需要一定网页编写基础，不过这东西很简单，而且恰好我在做前端，做起来也感觉很亲切。并且它的css是sass生成的，更亲切了。<br>
+    建完站之后在_config.yml中不要忘了修改baseurl,写成 /yourreponame;或者如果你需要定制域名的话(此处踩坑)，可以去域名提供商去买一个域名，再在你的repo根目录下面
+    加上一个文件CNAME(cap!)，写入你花钱买的域名。然后再去修改你域名的CNAME，指向username.github.io(www和@都要改)，稍等一会就可以访问你的网站辣;关于CNAME,就是你的域名的别名。<br>
+    域名提供商的话，可以尝试<a href="https://www.godaddy.com/">godaddy</a>。
+  </p>
+</section>
