@@ -1,7 +1,7 @@
-// var disqus_config=function(){
-//   this.page.url="sjwjames.com";
-//   this.page.identifier=jamessite0325;
-// }
+var disqus_config=function(){
+  this.page.url="sjwjames.com";
+  this.page.identifier=jamessite0325;
+}
 
 (function(){
   var d=document,s=d.createElement("script");
