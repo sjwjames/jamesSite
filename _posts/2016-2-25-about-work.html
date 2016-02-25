@@ -1,0 +1,47 @@
+---
+layout: post
+title:  "Some tricks"
+title_chinese: "工作时候css上遇到的坑以及感想"
+date:   2016-02-13 20:56:46 +0800
+categories: work
+---
+
+<section>
+    <h1>
+      {{page.title_chinese}}
+    </h1>
+    <p>
+        最近做的页面里面还是学到了不少奇技淫巧。<br>
+        首先是遇到了这样的一个需求<br>
+        <img src="/imgs/2-25/triangle.png" alt="三角" /><br>
+        不要在意细节，还没有完全调好样式...<br>
+        如果之前导师没有跟我提过的话，我应该完全是懵逼的，可能会去找UI重新切张图出来。幸好之前导师有和
+        我提过其实css盒子模型里面，当标签有长度和高度的时候，一边的边框并不是长方形的，而是梯形的，那么只要将标签设置成宽高为零并显示边框，就能看见
+        四个三角形拼成的矩形。所以在这个栗子中只要在文字下面添加一个空的标签，把这个标签底下边的颜色设置为白色，其他三边的颜色设置成背景色，并且把该标签的宽高都设置为
+        0就可以了。<br>
+        <img src="/imgs/2-25/code-triangle.png" alt="三角代码" /><br>
+        <code>
+            .selected-symbol{
+                width: 0;
+                height: 0;
+                border: 10px solid;
+                border-width: 0.75rem 1.875rem;
+                border-color: #ab9350 #ab9350 #ffffff #ab9350;
+                margin: auto;
+                margin-top: -1.47rem;
+            }
+        </code><br>
+    </p>
+
+    <p>
+        接着遇到了一个html5的问题，就是需要在js中动态修改表单placeholder的颜色。一般我们做的时候是会在表单输入框后面添加一个
+        提示信息，来显示表单验证的结果，这个需求就需要动态修改placeholder的颜色。一开始在网上寻找解决方法的时候
+        没有找到特别合适的，直到发现了这个博客...(啊...人家博客做的很好诶...是时候找机会美化一下了)<a href="http://www.w3ctrain.com/2015/07/21/modify-pseudo-elements-css/">戳我</a>
+        <br>
+        <img src="/imgs/2-25/code-placeholder.png" alt="代码" />
+    </p>
+
+    <p>
+        吃晚饭的时候，导师发了一个ES6的练习网站...可以搞一发<a href="http://es6katas.org/">ES6</a>..话说js要赶紧看了..
+    </p>
+</section>
