@@ -1,0 +1,39 @@
+---
+layout: post
+title:  "About Jasmine"
+title_chinese: "关于Jasmine"
+date:   2016-02-26 16:30:00 +0800
+categories: Jasmine
+---
+
+<section>
+    <h1>
+      {{page.title_chinese}}
+    </h1>
+    <p>
+        今天的工作并不是特别多，主要是看看技术文档为主。下午的时候，Hyman提到怎么写js的testcase..之前没有接触过，去查了下，学习了下。
+    </p>
+    <p>
+        Jasmine是一个Js的测试框架，可以用它来写js的测试用例。有Junit的学习经验，这东西学起来也比较快。<br>
+        可以通过gem来安装的，也可以通过npm来进行安装，或者下载standalone包<a href="https://github.com/jasmine/jasmine">https://github.com/jasmine/jasmine</a>Jasmine的github主页
+        有具体的项目搭建教程。我尝试了gem和standalone的方式，基本文档结构都差不多，就只记录下standalone的方式，也相对简单。
+    </p>
+    <p>
+        <h2>Standalone</h2>
+        可以在Jasmine的github主页上找到release，下载解压到自己想要的项目里面。解压后有三个文件夹lib、src、spec，分别是Jasmine框架的核心库，需要测试的的js代码和测试代码。SpecRunner.html则是
+        测试结果的呈现结果，可以按照它给的例子来依葫芦画瓢。例子里面spec文件夹下面有个SpecHelper.js，这个文件夹可以对测试的前置条件和后置条件等进行一些配置，当然也可以自己重写，只要在SpecRunner.html(或者是自己的页面)）
+        引用就可以了。
+    </p>
+    <p>
+        测试用例的主题主要是由一下代码组成:<br>
+        <img src="/imgs/2-26/jasmine-1.png" alt="" /><br>
+        describe方法可以理解为定义了一个作用域，用于或者是一条测试路径（Zy..我会好好复习软件测试的..）...接受两个参数，一个字符串和一个function()。beforeEach方法就是在这个测试路径下面规定
+        每个测试用例的前置条件。it方法就是测试用例的主体，也是接受两个参数，一个字符串，还有一个function(),expect接受需要测试的内容，后面链式调用matcher方法，用来进行判断，这个matcher是可以自己
+        编写的，不只局限于原生的一些方法，可以在SpecHelper.js的beforeEach里面规定。<br>
+        <img src="/imgs/2-26/jasmine-2.png" alt="" /><br>
+        具体有哪些matcher方法可以google。<br>
+    </p>
+    <p>
+        参考：<a href="http://code.tutsplus.com/tutorials/testing-your-javascript-with-jasmine--net-21229">http://code.tutsplus.com/tutorials/testing-your-javascript-with-jasmine--net-21229</a>
+    </p>
+</section>
