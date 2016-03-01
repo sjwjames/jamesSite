@@ -1,0 +1,36 @@
+---
+layout: post
+title:  "About JS Inheritance"
+title_chinese: "关于John Resig的JS继承体系"
+date:   2016-03-01 09:30:00 +0800
+categories: JS
+---
+
+<section>
+    <h1>{{page.title_chinese}}</h1>
+    <p>
+        之前提到，本文主要搬运和翻译了John Resig的博文<a href="http://ejohn.org/blog/simple-javascript-inheritance/">http://ejohn.org/blog/simple-javascript-inheritance/</a>
+    </p>
+    <p>
+        作者研究了好多种经典的JS继承模拟技术，比较倾向于被base2和Prototype采用的那种实现方式。作者基于前人的成果，提取出他们技术的精华，将其整合出一套简单、易懂、可复用且没有其他依赖的JS继承
+        手段。并且举了一个🌰<br>
+        <img src="/imgs/3-01/code-1.png" alt="" /><br>
+        熟悉C++/JAVA继承技术的人对上面的代码一定不会陌生。作者阐述了一些关于这个实现的需要注意的点，第一，一定要提供一个比较简单的构造函数，第二，在创建新的类型的时候要继承一个已经存在的类，
+        第三，所有类型都是Class类的子类，第四，要提供覆写父类函数的权限，并且上下文一定要设置正确。
+    </p>
+    <p>
+        接下去作者提供了自己实现的源码，结合作者的解释，做了逐行的理解，如果有不对的地方，欢迎留言。<br>
+        <img src="/imgs/3-01/code-2.png" alt="" /><br>
+        首先声明了一个布尔值，表示是否已经初始化，一个正则对象，我在console下运行fnTest=/\b_super\b/下面会用来判断函数中是否有调用_super。接着创建了一个空的Class对象，作为所有类的
+        父类，为它定义了一个extend函数，用来生成继承Class对象的子类，接收一个参数列表。函数主体中创建了_super用来存储Class的原型(this指的是Class，js中this指向实施调用的对象)，接下去的三行
+        按照作者的注释可以知道是创建了一个新的父类实例用来扩展其原型(其实接下去做的工作就是在这个实例上进行扩展)，但是没有执行init方法（不明白他是怎么做到的，看代码应该一定会调用才对..除非没有init方法）。接下去，for循环里面将传入参数
+        列表中的值取出，检查类型是不是function，检查父类原型里面相对应的变量是否是function，并且检查这个值是否包含_super，对这三个检查值做与操作，假则直接将参数中的值赋值给新建的父类实例，真则需要
+        将父类中的同名方法赋值给this._super，这样在子类中调用this._super()的时候就可以正确查找到父类的同名方法，调用fn.apply(this, arguments)执行方法，执行后将this._super恢复，因为this._s
+        uper保存了整个父类的原型，接下去的函数可能还需要用到。接下去可以理解为创建一个新的对象，也就是结果对象，在没有初始化并且存在init方法的情况下，调用init方法进行初始化。接下去就是将刚才新建的原型
+        赋值给Class的原型，并且制定构造函数为指定的函数，将Class.extend赋值为当前正在运行的函数(arguments.callee)，其实有点递归的意思在里面，这样使得刚才创建的function Class()可以被继续扩展，
+        然后返回Class。也就是说实际上Class.extend等于在function()里面隐式创建的function Class()。
+    </p>
+    <p>
+        然后作者提到了两个比较重要的点，就是初始化和调用父类同名方法，基本上与我上面的理解没有什么大的出入，就不一一赘述了。多说无益，能写出来才是王道。欢快地去写代码了。。
+    </p>
+</section>
