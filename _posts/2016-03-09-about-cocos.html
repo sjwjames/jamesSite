@@ -1,0 +1,100 @@
+---
+layout: post
+title:  "About Cocos-2d-js"
+title_chinese: "关于cocos-2d-js基础(二)"
+date:   2016-03-09 10:00:00 +0800
+categories: Cocos-2d-js
+---
+
+<section>
+    <h1>{{page.title_chinese}}</h1>
+    <h2>动起来</h2>
+    <p>
+        帧频是一秒内帧的数量，通常用fps表示。电影的帧频一版是24,而游戏一般以60帧为最高帧频，低于30帧就会让人觉得卡顿。即使帧频设置为60fps，但是实际上GPU未必会每秒对画面重绘60次，因为会有性能
+        上的考虑，它会去尝试重绘60次，而如果设置了较低的帧频，那么达到设置值后也不会自动去提升。
+    </p>
+    <p>
+        在Node中，scheduleUpdate和update可以实现每帧进行操作。scheduleUpdate发放通知所在节点在每帧重绘之前调用update方法，update方法是框架原生的方法。Node有方法名曰runAction，想要使
+        节点动起来，只需要调用这个方法，并且给它传递响应的动作参数就好，var action=cc.xxxAction();node.runAction(action);具体的动作有个大概的印象即可，使用到的时候可以翻看API。ccs2djs提供
+        了sequence/repeat/repeatForever/spawn(同时执行)/reverseTime/reverse。相应的API是cc.sequence(act1,act2...),cc.repeat(act,times),cc.repeatForever(act),cc.spawn(act1,act2...)
+        cc.reverseTime(action)，reverseTime可以让动作反向播放，只能处理有限长度的动作，reverseTime在最初始会瞬间完成原始动作然后反向播放，action.reverse则不会出现这样的问题。动作的缓动方式
+        可以通过action.easing(easeObj)来实现，具体有哪些就不赘述，可以通过看源码或者查API来获得。控制动作的停止一共有三种方法，node.stopAction(action),node.stopActionByTag(tag),
+        node.stopAllAction()。当然也有pause和resume方法来暂停和恢复动作。
+    </p>
+    <p>
+        ccs2djs中没有提供接口来监听动作的开始和结束，但是我们可以使用cc.callFunc(function,target,params)将一个函数封装成一个动作，再结合sequence就可以让一个动作结束后执行某个函数了。
+        var callback=cc.callFunc(this.callback,this,"message"),callback:function(nodeExecutingAction,data),var sequence=cc.sequence(act,callback);
+    </p>
+    <p>
+        cc.audioEngine.playMusic(res,repeat)/cc.audioEngine.stopMusic()用来控制背景音乐，cc.audioEngine.playEffect(res,repeat)/cc.audioEngine.stopEffect(effect)/
+        cc.audioEngine.stopAllEffects()用来控制音效cc.audioEngine.setEffectsVolume(volume),volume取值0-1
+    </p>
+    <h2>事件</h2>
+    <p>
+        if(something in cc.sys.capabilities)来判断当前平台是否支持某个功能信息，cc.sys.capabilities可以用来获取当前平台的功能信息。我们可以用
+        cc.eventManager.addListener({event:cc.EventListener.MOUSE,onMouseDown:function(event)，
+            onMouseMove:function(event),onMouseUp:function(event)},node)来监听
+        节点上的鼠标事件，结合前面的功能信息判断就可以设定在PC上的鼠标事件判定。单点触摸事件监听cc.EventListener.TOUCH_ONE_BY_ONE，回调有onTouchBegan,onTouchMoved,onTouchEnded,
+        onTouchCancelled，参数有两个，一个是touch，一个是event，touch对象封装了触摸事件专有的数据，例如触摸点的坐标，获取触摸过程的id(主要用于在多点触摸中区分不同的触摸点)。onTouchBegan函数的
+        最后还有return true/false，表示是否接受本次触摸事件，如果返回false，则同一个触摸过程中的后续onTouchMoved等不会被触发。多点触控事件用cc.EventListener.TOUCH_ALL_AT_ONCE，每个函数的
+        参数是touches和event,onTouchBegan不需要返回true/false，因为无法控制是否接受本次触摸过程。
+    </p>
+    <p>
+        键盘事件用cc.EventListener.KEYBOARD来表示，两个回调函数onKeyPressed和onKeyReleased，接受两个参数，keyCode和event，keyCode可以查看CCCommon.js。
+    </p>
+    <p>
+        重力感应数据使用重力的分量xyz来表示，x表示游戏画面的水平方向的倾斜角度，y表示游戏画面的垂直方向的倾斜角度，z则表示垂直于设备屏幕的倾斜角度。在监听重力感应时，需要先设置重力感应器的频率并
+        开启重力感应监听cc.inputManager.setAccelerometerInterval(interval);cc.inputManager.setAccelerometerEnabled(true);频率接受一个小数，如1/30表示1秒触发30次。
+        cc.eventManager.addCustomListener(cc.game.EVENT_HIDE,function(){});cc.eventManager.addCustomListener(cc.game.EVENT_SHOW,function(){});游戏进入后台/恢复显示
+    </p>
+    <h2>定时器</h2>
+    <p>
+        除了scheduleUpdate还有scheduleOnce和schedule都依赖于节点，可以用scheduleOnce(callback,delay)来代替js中的setTimeout，用schedule(callback,interval,repeat,delay)来代替js
+        的setInterval，都是以秒为单位,delay是第一次触发前的延迟时间，最后两个参数可以省略。取消定时器可以调用node.unscheduleUpdate()，取消scheduleOnce和schedule都使用node.unschedule(callback)
+        callback必须跟原来schedule传入的是同一个函数。schedule底层调用this的时候使用了node.callback.call(node,callback)的调用方式，因此在设置定时器回调函数的时候直接使用this来指代节点
+        作用域内的函数是可行的。node.pause和node.resume可以暂停和恢复节点下的定时器。
+    </p>
+    <p>
+        由于schedule的实现基于帧频，所以当帧频下降的时候，定时器的误差会变大，schedule只能用于动画控制，不能用于逻辑处理或者网络同步的计算上。ccs2djs自带的定时器最终都会越走越慢，因为schedule受
+        帧频驱动，css2djs在每帧的计算中都遍历全部定时器，达到触发时间就触发定时器，但框架忽略了定时器周期和帧周期的差距问题，多次循环后误差会越来越大。可以用以下方式来解决这个问题：
+    </p>
+    <p>
+        <code>
+        schedule2:function(callback,interval){<br>
+        var then=Date.now();<br>
+        interval=interval*1000;<br>
+        this.schedule(function(){<br>
+        var now=Date.now();<br>
+        var delta=now-then;<br>
+        if(delta>=interval){<br>
+            then=now -(delta%interval);<br>
+            callback.call(this);<br>
+        }<br>
+    }.bind(this,0);<br>
+}<br>
+        </code>
+        由于定时器的时间间隔未必等于帧频，假设interval设置为100ms，而帧频为60fps，那么每16毫秒才触发一次schedule方法，而需要112ms才能触发一次实际的回调，16*7=112>100，所以比设定晚了12ms，那么
+        我们就在下一次触发回调之前，把这个误差给抹杀掉即可，也就是说用现在的时间减去误差即为实际应该触发的时间then=now -(delta%interval);所以下次触发计时相对来说是从12ms开始计时而不是0，这样在第六次
+        调用schedule的时候就触发实际调用，而误差变为了8，也就是说误差变小了。随着计算不断推进，误差会以数列12 8 4 0的周期形式呈现，总体来说效果还是不错的。当然实际帧频不一样，周期数列也就不一样。
+    </p>
+    <h2>游戏界面</h2>
+    <p>
+        ccs2djs提供了四种按钮，包括:MenuItemSprite/MenuItemImage/MenuItemFont/MenuItemLabel这些按钮都继承于MenuItem。<br>
+        new cc.MenuItemSprite(spriteNormal,spriteSelected,spriteDisabled,clickHandler,target);<br>
+        其中spriteDisable target表示作用于clickHandler的作用域，是可以忽略的，<br>
+        MenuItemImage继承MenuItemSprite，用法一致，只是把参数里面的Sprite改成了url。<br>
+        new cc.MenuItemFont(text,handler,target)<br>
+        new cc.MenuItemLabel(ttf/bmfont,clickHandler,target)<br>
+    </p>
+    <p>
+        MenuItemToggle接受多个MenuItem，每次接收到用户点击后就切换到下一个MenuItem一直循环切换。<br>
+        new cc.MenuItemToggle(MI1,MI2...handler,target)<br>
+    </p>
+    <p>
+        Menu的坐标原点默认居中显示，可以使用menu.alignItemsHorizontally()或者menu.alignItemsVertically()来排布按钮。文本new cc.LabelTTF(text,font,fontSize,labelSize,hAlign,vAlign)
+        后两个参数是对齐方式。
+    </p>
+    <p>
+        要监听某个UI元素，首先要获得这个按钮的实例对象，ccui.helper.seekWidgetByTag和ccui.helper.seekWidgetByName分别以tag和名字查找。然后添加注册监听即可，传入回调函数和target。
+    </p>
+</section>
