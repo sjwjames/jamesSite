@@ -1,0 +1,80 @@
+---
+layout: post
+title:  "About Cocos-2d-js"
+title_chinese: "关于cocos-2d-js基础(四)"
+date:   2016-03-10 15:00:00 +0800
+categories: Cocos-2d-js
+---
+
+<section>
+    <h1>{{page.title_chinese}}</h1>
+    <h2>原生移植</h2>
+    <p>
+        打包什么的，看看教程就好了。打包成为原生APP之后，启动顺序也相应改变，首先启动的是原生APP基础，接着启动AppDelegate类，这一步将执行所有必要的JSB工作，把cocos2d-x的接口绑定到JS上，然后启动
+        JS解析引擎，为后续JS代码的执行做准备。jsb_boot.js启动，这一步将读取project.json，加载文件列出的全部JS文件。main.js启动。移植过程中可能会遇到各种坑，尤其是内存管理这一块。作者举了一个🌰，
+        就是暂时创建一个对象，然后不把它放在舞台上，延迟几秒后再放上去，这个在网页上显示比较正常，而在原生APP中直接就会报错。这是因为JS的辣鸡回收机制和2dx的不太一样，js的辣鸡回收策略主要是两种，
+        引用计数和标记清除，标记清除从根对象开始轮询对象的引用，如果对象没有来自根对象的引用，则把这个对象标记为可回收。根对象是global对象(网页中是window)或者是全局变量(其实也是global对象中的属性)。
+        我们的环境运行在JS运行环境中，每建立一个节点，Cocos2d-JSB就会在Cocos2d-x镜像环境中相应建立一个节点。Cocos2d-x使用的辣鸡回收机制是这样的，当一个对象被创建的时候，该对象的计数器默认为1，
+        对象之间的引用不能影响这个计数器，只有显示调用对象的retain和release方法才能改变计数器的值。如果对象的计数器减小到0，该对象就会被销毁回收。除此之外，显示列表的操作也会影响对象的计数器，即父子节点
+        之间的增删操作等。ccs2dx又加入了自动销毁池，自动销毁池在每帧结束之后都会做清理工作。如果池中某对象计数器为1则表示该对象并不存在于显示列表中，那么该对象将被马上销毁。因此，刚才的问题在于，
+        因为2dx没有识别对象之间的引用，所以我们新建对象没有放上舞台，导致它被提前销毁了，而再加上去的时候相当于会报空指针的错误。所以我们在新建节点，又没有马上将其加入舞台(Sometimes it is a kind of
+        bad smell)或者是从父节点中删除了某个节点，但是之后还要使用这个节点的时候，我们需要调用retain方法来保存其在内存中。
+    </p>
+    <h2>自定义事件</h2>
+    <p>
+        ccs2djs中event调用stopPropagation就等于js中调用stopImmediatePropagation,会把后续所有监听都停止。cc.eventManager.addCustomListener("eventName",function(){}),
+        cc.eventManager.dispatchCustomEvent("eventName",userData);addCustomListener用来添加监听，dispatchCustomEvent用来传递或者可以说触发事件，event.getUserData()可以获取
+        传递过来的数据。作者还实现了一个自定义事件，关键点在于使用map键值对记录事件名和监听器列表，派发事件的时候要把原监听器列表复制一份，防止某个监听器执行过程中移除监听。
+    </p>
+    <h2>屏幕适配</h2>
+    <p>
+        我们可以调用cc.view.setDesignResolutionSize()来设定屏幕适配策略。这里有三个术语需要理清楚，设计尺寸、可视尺寸和屏幕尺寸。设计尺寸是设计游戏时预定的目标尺寸(我的
+        理解是逻辑上的概念，这样其中的坐标也是逻辑上的坐标)，一般通过WinSize获得。可视尺寸是游戏画面实际能显示到屏幕上的范围，可视起点表示当前屏幕左下角在整个游戏画面(设计尺寸)中的坐标。屏幕尺寸
+        么，就是设备屏幕的尺寸咯。<br>
+        <h3>自适应拉伸</h3>
+        cc.ResolutionPolicy.EXACT_FIT。游戏刚好会铺满屏幕，但是比例会失调，所以一般不采用这个
+        <h3>全显示</h3>
+        cc.ResolutionPolicy.SHOW_ALL。这个方案和自适应类似，但是游戏画面拉伸时将会等比例进行。因此会带来黑边的问题。
+        <h3>无黑边</h3>
+        cc.ResolutionPolicy.NO_BORDER。游戏画面会等比例拉伸，但是会让游戏画面的短边刚好占满屏幕，此处短边是指相对于屏幕比例较小的那个边。在无黑边模式下，我们设置节点位置的时候就要加入
+        VisibleOrigin。cc.director.getVisibleOrigin().x/y可以获得可视原点坐标。
+        <h3>固定高度</h3>
+        cc.ResolutionPolicy.FIXED_HEIGHT
+        顾名思义，就是高度固定，宽度按比例缩放。需要注意的是，此时的winSize和visibleSize相同。visibleorigin是(0,0)
+        <h3>固定宽度</h3>
+        cc.ResolutionPolicy.FIXED_WIDTH
+        同上
+    </p>
+    <h2>渲染控制</h2>
+    <p>
+        如果游戏使用GPU加速(ccs2djs在WebGL或Native环境下都使用了GPU加速)，那么游戏中的显示列表中的每个节点都会被推送到GPU中进行渲染。CPU首先创建节点，然后对位移形变进行操作后，将画面
+        推送到GPU中进行处理，GPU分为顶点管线和像素管线，顶点着色器将所有节点的每一个顶点映射到屏幕的最终位置，其中需要做矩阵变换;接着做图形的裁剪或遮罩工作，至此完成节点的轮廓绘制工作；片段着色器再把节点
+        对应的图片或颜色填充到节点的轮廓中；多个节点之间的深度排序，透明度处理,blending，最后输出到屏幕，相当于将节点按照叠加顺序合成一张大图，然后输出。<br>
+        渲染管线中的顶点着色器和片段着色器是可控的，ccs2d引擎底层使用的是OpenGL ES，编写自定义着色器的时候，我们要遵循OpenGL ES的规范，使用的是OpenGL着色语言。
+        <ul>
+            在CCS2dJS中使用着色器Shader的步骤如下：
+            <li>编写Vertex Shader和Fragment Shader</li>
+            <li>定义顶点坐标和纹理坐标（用于绑定纹理）</li>
+            <li>定义纹理，绑定纹理</li>
+            <li>设置shader的参数</li>
+            <li>每帧draw的时候，gl.drawArrays推送到GPU绘制</li>
+        </ul>
+        作者使用着色器画了一个蓝色的三角形，代码就不贴了，主要部分是和GPU进行数据交互的时候，需要定义一个缓冲区，gl.createBuffer，然后使用gl.bindBuffer把指针指向缓冲区，最后用gl.bufferDat
+        将数据传递进去。需要传递两次，因为有两条管线，一个定义了顶点的坐标，一个是颜色。接着作者设置了指针并且使用指针从指向的缓存区读取数据并且设置到Vertex Shader，分别设置了Vertex Shader的
+        两个变量，最后调用gl.drawArrays通知GPU绘制。总结起来，就是定义缓冲区，把数据塞进去，推送进GPU，然后使用指针从缓冲区中读取数据设置Shader的变量和一些常量(这个引擎会帮忙做)，然后通知
+        GPU绘制。在Vertex Shader中最终需要设置gl_Position，表示顶点的最终屏幕位置，而Fragment Shader则需要设置gl_FragColor，表示某一个点的最终颜色值。attribute是Vertex Shader专有的
+        变量，uniform是两个Shader公用的常量，而varying变量是Vertex Shader传递数据到Fragment Shader的方式。然后作者自己编写了一个滤镜对象，包含了Vertex Shader和Fragment Shader的代码，
+        和静态方法grayScle，方法中使用cc.GLProgram()，即ccs2djs对OpenGL的封装接口，把节点的Shader处理通过GLProgram实现，首先通过initWithString把两个Shader传递进去，然后调用addAttribute
+        指明变量的名称和位置，最后调用link方法编译Shader程序，并调用updateUniforms初始化uniform常量。使用这个Shader很简单，只要把GLProgram对象赋值给sprite的shaderProgram就可以了。
+        通过getUniformLocationForName和setUniformLocationF32可以获取uniform常量的地址和设置uniform常量。
+    </p>
+    <p>
+        还有一种更加简单的方式可以控制渲染，就是混合模式，是渲染管线中最后一步。混合模式的主要功效是控制当前节点和底下节点的已有图像如何叠加。针对每一个像素点，OpenGL会把源颜色(当前节点)和目标
+        颜色(底层图像)各自取出，并乘以一个系数，分别是源因子和目标因子，然后相加得到新的颜色，最终把这个颜色作为该像素的最终效果。我们可以通过使用Sprite或Layer的setBlendFunc方法，有两个
+        参数，前者是源因子，后者是目标因子。值得注意的是，目标颜色并不是特指底下某个节点，而是底下已有的图像.
+    </p>
+    <h2>动态热更新</h2>
+    <p>
+        挖个坑
+    </p>
+</section>
