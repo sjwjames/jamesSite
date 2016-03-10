@@ -1,0 +1,75 @@
+---
+layout: post
+title:  "About Cocos-2d-js"
+title_chinese: "关于cocos-2d-js基础(三)"
+date:   2016-03-09 15:00:00 +0800
+categories: Cocos-2d-js
+---
+
+<section>
+    <h1>{{page.title_chinese}}</h1>
+    <h2>性能优化</h2>
+    <p>
+        普通网页开发的时候，我们可以将零碎小图合并成一张大图，也就是css-sprite，在ccs2djs开发中自然也是可以用的。我们可以用TexturePacker来制作sprite sheet，需要注意的是我们不能直接在os中
+        修改文件名，导出两个文件plist和png，前者是位置信息，后者是拼接的大图。把零碎小图整理后，我们加载精灵的方式也需要改变，我们可以使用以下方式cc.spriteFrameCache.addSpriteFrames(plistUrl);
+        这里将大图分解为sprite frame，并且缓存到内存中，等待后续使用。此时新建一个Sprite可以使用new cc.Sprite("#SpriteFrameName");这里传入的是图片的文件名，需要加后缀。
+    </p>
+    <p>
+        在ccs2djs中我们可以使用SpriteBatchNode实现批处理，也就是说如果需要产生很多相同的Sprite我们就可以使用批处理的方式来生成。new cc.SpriteBatchNode(resUrl)，这里可以使用拼接过的大图或者小图，
+        使用大图的话，之后只要是大图中的碎图都可以添加到batchNode上。
+    </p>
+    <p>
+        可以利用cc.pool这个接口来构建我们需要用的缓存池，具体步骤是建立一个可回收的类，该类中必须有reuse和unuse方法，从cc.pool中取出的实例的时候调用reuse方法把该实例重新初始化，而该实例从舞台删除放回
+        到缓存池的时候调用unuse方法；利用cc.pool.hasObject(TargetClass)，有则使用cc.pool.getFromPool(TargetClass,args..)来创建对象实例，这里args需要和reuse的参数一致。当使用完后，使用
+        cc.pool.putInPool(instance)把实例放回缓存池中。使用之前需要在projec.json中加入ccpool这个模块
+    </p>
+    <p>
+        在一些场景中有些UI界面和游戏界面是静态的，而在Canvas 2D环境下每次重绘的时候，依旧会将其重新绘制一遍。我们可以使用Layer中的bake方法将层自身和层上的节点缓存起来，以后每帧重绘都只是将缓存的位图绘制
+        到舞台上，解除缓存则使用unbake方法即可，bake方法只有在Canvas2D环境下才有效，在JSB和WEBGL环境下都是无效的。当然我们可以修改renderMode为1强制使用canvas 2D渲染。
+    </p>
+    <h2>动画</h2>
+    <p>
+        帧动画是最简单的动画，原理是按固定的时间间隔按顺序切换显示一系列的静态图，从而形成动画。我们在ccs2djs中可以使用Animation类来构建一个序列的动画。new Animation(frames,delay,loops),frames
+        是SpriteFrame数组，可以利用cc.spriteFrameCache加载SpriteSheet后获得。让动画动起来的办法和让节点动起来的方法一样，新建一个action,var action=cc.animate(animation);sprite.runAction(action)
+    </p>
+    <p>
+        帧动画的优点是简单，但是带来的问题就是可能会有很多图片，资源变得异常大，对于HTML5游戏来说是比较致命的。那么我们就可以使用骨骼动画来弥补这个缺点，并且动画形象能做的事情也会比较多。在ccs2djs中使用
+        骨骼动画的时候，需要将专门制作骨骼动画的编辑器导出问价放在res文件夹下，并且修改resource.js，对骨骼动画的文件做预加载，修改project.json，添加cocostudio模块,使用ccs.armatureDataManager的
+        addArmatureFileInfo方法对骨骼动画做预处理。使用ccs.Armature新建一个骨骼动画实例，放置在舞台上。<br>
+        <code>
+            ccs.armatureDataManager.addArmatureFileInfo("xxx");<br>
+            this.armature=new ccs.Armature("xx");<br>
+            this.armature.getAnimation().play("xx");<br>
+        </code>
+        Armature是封装了骨骼动画的Node，拥有普通Node的所有特性，Armature通过getAnimation方法可以获取具体的动画实例，ArmatureAnimation，然后可以指定播放哪一个动作序列，这个动作序列是我们在动画
+        编辑器里面编辑的一组动画的名称。除了play以外还有pause/resume stop setSpeedScale(设置动画播放相对于游戏帧率的倍率) setMovementEventCallFunc(设置播放过程中的监听函数)。
+    </p>
+    <h2>背景</h2>
+    <p>
+        现实中，我们可能会遇到一个现象就是在我们坐车在路上飞驰的时候，看起来远处的群山没有在动，而旁边的树木却在快速地离我们而去，有时候我们需要把这个现象也就是视差效果搬进
+        游戏中来增加场景的真实感和立体感。在ccs2djs里面，我们可以使用ParallaxNode来实现我们的需求，它继承了Node类，我们可以在这个节点上添加远近不同的背景层，并设置每个背景层的移动速度比例。
+        具体方法是<code>parallaxNode.addChild(bgLayer,z-index,ratio,offset)</code>其中bgLayer可以是普通的Sprite,z-index是叠加顺序，ratio是一个Point对象，表示x和y方向上的速度，offset表示
+        该背景层的坐标，也是Point对象。如果需要做无穷的背景，只需要将背景加载两次，注意图片设计的时候需要左右两端衔接比较自然，并且在update函数里面判断是否已经移动了一个背景长度，(啊。。其实这么做的话我觉得
+        背景只加载一次也可以只要左右两边能接起来，然后判断到头了就回到原点)，就让背景层的位置重置一下。
+    </p>
+    <p>
+        2DRPG里面，会需要使用瓦片地图来创建一个可以复用的地图场景。所谓瓦片地图就是把场景中的元素分成可以复用的小块，然后在场景中按照逻辑填充的地图。作者也提供了一个免费的生成瓦片地图的工具，Tiled Map Editor
+        在ccs2djs里面加载瓦片地图的话只需要导出的tmx文件加载进来就好，使用var map=new cc.TMXTileMap("map.tmx");然后添加到Layer中，使用getLayer方法可以获取到瓦片地图中某一层的内容，返回的内容是TMXLayer
+        ，通过TMXLayer，我们可以对某个坐标的瓦片做删改查操作。TMXLayer继承自SpriteBatchNode。
+    </p>
+    <h2>字体</h2>
+    <p>
+        位图字体的每一个字符都用一张位图表示，而设备字体则存储字符的矢量信息。位图字体需要游戏携带位图数据，而设备字体则只需要游戏指定使用哪个字体，显示时从设备自带的字体列表中查找指定字体即可。但是设备字体
+        很可能在不同设备上造成兼容问题，而且系统字体在每帧都要依赖CPU进行矢量绘制，而位图字体则可以不经过CPU计算，直接把图片推送到GPU进行渲染。作者推荐BMFont(windows)或者Glyph Designer(mac)制作位图
+        字体。使用位图字体就比较简单了，导出字体表之后，使用cc.LableBMFont(text,res，width,alignment);
+    </p>
+    <h2>粒子系统</h2>
+    <p>
+        在计算机图形学中，粒子系统用来模拟一些特定的模糊现象，如火焰、爆炸、烟雾、落叶等等。粒子可以使用一个小图片或者一个纯色小色块来表示。粒子系统可以指定生产速度和更新间隔，在指定位置生产粒子，初始化粒子
+        的速度，颜色，透明度，生命周期等。粒子在生命周期内会根据实际物理规律来更新自己的属性，超过生命周期后就会自动消失。ccs2djs中可以使用cc.ParticleSystem(number)来生产粒子系统，参数代表同一时刻粒子数目上限
+        。另外需要设置粒子的纹理，需要借助cc.textureCache把图片缓存起来，转化为其他类需要的纹理。particleSystem.texture=cc.textureCache.addImage(res);粒子系统的属性极其之多，需要时再翻阅api，
+        ccs2djs也提供了不少现成的粒子，cc.ParticleFireworks,cc.ParticleFire,cc.ParticleSun,cc.ParticleGalaxy,cc.ParticleFlower,cc.ParticleSnow,cc.ParticleRain,cc.ParticleMeteor(流星),
+        cc.ParticleSmoke,cc.ParticleSpiral(螺旋),cc.ParticleExplosion。自然也是可以通过编辑器来生产粒子的，作者推荐了ParticleEditor，加载的时候只要把之前的参数number改成导出的文件即可，作者书中
+        写的是plist文件。我们可以设置setAutoRemoveOnFinish(true)来设置有限循环播放的粒子自生自灭。
+    </p>
+</section>
