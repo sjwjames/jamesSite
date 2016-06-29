@@ -1,0 +1,46 @@
+---
+layout: post
+title:  "Flexbox&Grid Layout"
+title_chinese: "Flexbox&Grid Layout"
+date:   2016-06-29 15:00:00 +0800
+categories: Cocos-2d-js
+---
+
+<section>
+    <h1>{{page.title_chinese}}</h1>
+    <cite>
+    The CSS3 Flexible Box, or flexbox, is a layout mode providing for the arrangement of elements on a page such that the elements behave predictably when the page layout must accommodate different screen sizes and different display devices.
+    For many applications, the flexible box model provides an improvement over the block model in that it does not use floats, nor do the flex container's margins collapse with the margins of its contents.</cite>
+    <p>
+        FlexBox也称为css弹性布局盒子，是css3中定义的一种新的布局模式。主要用途是可以在子元素高度宽度未知或者是动态的时候自动去调整其子元素的宽度或者高度使其能在不同分辨率的设备下用比较优美的方式去填充布局。flexbox通常用于小的应用组件中，
+        Grid布局模式则应用于大规模的布局中。
+    </p>
+    <p>
+        <cite>
+            flex盒子模型由容器（flex container）以及容器的直接子元素（flex item）组成。
+            以容器（flex container）定义，有主轴（main axis）以及纵轴（cross axis），主轴为默认横向，默认从左到右，纵轴默认为纵向，默认从上到下（当布局排列方式变化的时候，main axis跟cross axis的方向也会跟着变化
+        </cite>
+        <p>
+            下面介绍各个属性及其不同值对应的布局情况。
+        </p>
+        <div>
+            <h3>flex-direction</h3>
+            flex-direction一共有四个值，row|row-reverse|column|column-reverse.row/row-reverse是按照行来排列，只是开始顺序不一样。column同理
+            <p data-height="265" data-theme-id="0" data-slug-hash="dXvQPy" data-default-tab="html,result" data-user="sjwjames" data-embed-version="2" class="codepen">See the Pen <a href="https://codepen.io/sjwjames/pen/dXvQPy/">flex-direction</a> by James (<a href="http://codepen.io/sjwjames">@sjwjames</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+        </div>
+        <div>
+            <h3>flex-wrap</h3>
+            flex-wrap主要控制的是子元素的换行规则，默认no-wrap，不换行，所以可以看到即使给子元素设置了宽度实际宽度也会变化;wrap则是换行，可以同时设置flex-direction来设置新行的排列规则;wrap-reverse则是反向换行。此处需要注意的是当
+            flex-direction是column/column-reverse的时候,设置flex-wrap为no-wrap是没用的。
+            <p data-height="265" data-theme-id="0" data-slug-hash="dXvQmX" data-default-tab="result" data-user="sjwjames" data-embed-version="2" class="codepen">See the Pen <a href="http://codepen.io/sjwjames/pen/dXvQmX/">flex-wrap</a> by James (<a href="http://codepen.io/sjwjames">@sjwjames</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+        </div>
+        <div>
+            <h3>flex-flow</h3>
+            flex-flow是flex-direction和flex-wrap的简要写法
+        </div>
+        <div>
+            <h3>justify-content</h3>
+        </div>
+    </p>
+    <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+</section>
