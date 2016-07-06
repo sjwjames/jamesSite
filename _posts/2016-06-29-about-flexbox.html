@@ -40,7 +40,36 @@ categories: Cocos-2d-js
         </div>
         <div>
             <h3>justify-content</h3>
-        </div>
+            justify-content控制子元素在flex中的排布规则，flex-start和flex-end是从盒子的头尾开始排布，center则是居中排布，space-around会在每个元素周围排布相同的间距，并且两边到边框的距离相等，space-between的话与space-around相同，只是两边到边框没有距离
+            <p data-height="265" data-theme-id="0" data-slug-hash="JKyPEy" data-default-tab="html,result" data-user="sjwjames" data-embed-version="2" class="codepen">See the Pen <a href="http://codepen.io/sjwjames/pen/JKyPEy/">JKyPEy</a> by James (<a href="http://codepen.io/sjwjames">@sjwjames</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+       </div>
+       <div>
+           <h3>align-items</h3>
+           align-items控制子元素在同一行时在纵轴的排列规则,取值有flex-start,flex-end,center,stretch,baseline。
+       </div>
+       <div>
+           <h3>align-content</h3>
+           align-content的值域与justify-content一样，控制多行的box中行与行之间的排列规则，规则与取值之间的对应类似justify-content。
+       </div>
+       <div>
+           以上都是container的属性，下面列举一些item的属性。
+       </div>
+       <div>
+           <h3>order</h3>
+           顾名思义，控制item在container中的顺序
+       </div>
+       <div>
+           <h3>flex-grow</h3>
+           设置item的权重，根据权重比来分配各个item的空间，default值为0
+       </div>
+       <div>
+           <h3>flex</h3>
+           flex-grow flex-shrink flex-basis的合写
+       </div>
+       <div>
+           <h3>align-self</h3>
+           这个属性控制了item的排列规则，可以覆盖container已经设置的align-items值
+       </div>
     </p>
     <script async src="//assets.codepen.io/assets/embed/ei.js"></script>
 </section>
