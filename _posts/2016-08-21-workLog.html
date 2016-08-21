@@ -1,0 +1,48 @@
+---
+layout: post
+title:  "Work log for 8.14-8.21"
+title_chinese: "8.14-8.21工作日志"
+date:   2016-08-21 11:00:00 +0800
+categories: workLog
+---
+
+<section>
+    <h1>{{page.title_chinese}}</h1>
+    <p>
+      一直想要记录工作日志，把工作中遇到的问题做一些记录，放便以后能够查阅和学习的切入点，蓝鹅，懒惰星人拖了大半年才开始这项工作,Or2。以后还是每天记录工作事项，
+      周末来进行整理和扩展。
+    </p>
+    <p>
+      这个礼拜差不多已经调去Tapdb那边一个月了，写了一个月的Angularjs。主要完成的工作有webview表格、 bug列表的修复、官网/后台添加下载按钮。
+      周一周二主要是完成webview调用页面，遇到一个比较坑的地方，就是ios上的webview可能是基于性能考虑，在触发scroll事件的时候，会延迟触发，亦即在
+      scroll事件完成之后才会触发，对于表格的冻结列/表头来说会出现在滑动的过程中出现两个冻结表头或者是冻结列，搜了一圈也没有找到比较合适的解决方法，只有一个
+      在技术上可行的方案，即滑动放在表格内部，而非window中触发，这样的话，表格的高度会被限制死。蓝鹅，最终被产品否了。
+    </p>
+    <cite>In iOS UIWebViews, scroll events are not fired while scrolling is taking place; they are only fired after the scrolling has completed.
+       See Bootstrap issue #16202. Safari and WKWebViews are not affected by this bug.</cite>
+    <p>
+      周三周四主要是修bug为主，然后周五给官网和后台添加了下载按钮和在ios上的smart app banner。下载按钮的话主要是一个类似对话框的css写法，smart app banner就是
+      在head中添加一个元数据，ios safari可以读取元数据然后在页面上显示一个banner，提示用户可以打开本地应用或者是打开app store去下载。这里又有一个坑，就是
+      当页面中有iframe的时候，这个banner是不能显示出来的。
+    </p>
+    <p>
+      <cite>
+        <a target="_blank" href="https://developer.apple.com/library/ios/documentation/AppleApplications/Reference/SafariWebContent/PromotingAppswithAppBanners/PromotingAppswithAppBanners.html">
+          smart app banner 摸我
+        </a>
+      </cite>
+    </p>
+    <p>
+      <cite>
+        <a href="http://tapdb.com" target="_blank">对话框摸我</a>
+      </cite>
+    </p>
+    <p>
+      周五的前端小组分享会，瑞姐分享了google的一个站点的实现过程以及数学原理。主要是解决画面旋转的效果，其中引入了局部坐标系和欧拉角，并利用升维的方式引入
+      四元数来计算旋转后的坐标，再转换到三维中。3d到2d的投影效果其实用的思想是一样的，升维再降维。不过计算目标不太一样，是要计算转换矩阵，具体的计算过程
+      用到了不少的线代知识。挖个坑，以后仔细研究后再填。
+    </p>
+    <cite>
+      <a href="https://creativeguidebook.appspot.com/">一本书里的大千世界</a>
+    </cite>
+</section>
